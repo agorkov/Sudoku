@@ -89,6 +89,50 @@ begin
               end;
         end;
       end;
+  //»щем по строкам единственные возможные размещени€
+  for i := 1 to FIELD_SIZE do
+  begin
+    for v := TEVal(1) to TEVal(9) do
+    begin
+      cnt := 0;
+      for j := 1 to FIELD_SIZE do
+        if v in field[i, j].possible_values then
+          cnt := cnt + 1;
+      if cnt = 1 then
+      begin
+        for j := 1 to FIELD_SIZE do
+          if v in field[i, j].possible_values then
+          begin
+            VCL_field[i, j].Text := IntToStr(Ord(v));
+            VCL_field[i, j].Font.Color := clRed;
+            Edit1Change(vcl_field[i, j]);
+            Exit;
+          end;
+      end;
+    end;
+  end;
+  //»щем по столбцам единственные возможные размещени€
+  for j := 1 to FIELD_SIZE do
+  begin
+    for v := TEVal(1) to TEVal(9) do
+    begin
+      cnt := 0;
+      for i := 1 to FIELD_SIZE do
+        if v in field[i, j].possible_values then
+          cnt := cnt + 1;
+      if cnt = 1 then
+      begin
+        for i := 1 to FIELD_SIZE do
+          if v in field[i, j].possible_values then
+          begin
+            VCL_field[i, j].Text := IntToStr(Ord(v));
+            VCL_field[i, j].Font.Color := clRed;
+            Edit1Change(vcl_field[i, j]);
+            Exit;
+          end;
+      end;
+    end;
+  end;
 end;
 
 procedure TForm1.btn_new_fieldClick(Sender: TObject);
@@ -188,6 +232,7 @@ begin
         if VCL_field[i, j].Text <> '' then
           Edit1Change(VCL_field[i, j]);
   end;
+  btnHelpClick(nil);
 end;
 
 end.
