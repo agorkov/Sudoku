@@ -33,12 +33,30 @@ object Form1: TForm1
     OnChange = Edit1Change
   end
   object btnHelp: TButton
-    Left = 768
-    Top = 47
+    Left = 772
+    Top = 127
     Width = 107
     Height = 25
     Caption = 'btnHelp'
     TabOrder = 2
     OnClick = btnHelpClick
+  end
+  object btnSave: TButton
+    Left = 768
+    Top = 47
+    Width = 107
+    Height = 25
+    Caption = 'btnSave'
+    TabOrder = 3
+    OnClick = btnSaveClick
+  end
+  object btnLoad: TButton
+    Left = 768
+    Top = 78
+    Width = 107
+    Height = 25
+    Caption = 'btnLoad'
+    TabOrder = 4
+    OnClick = btnLoadClick
   end
 end

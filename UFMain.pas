@@ -12,9 +12,13 @@ type
     btn_new_field: TButton;
     Edit1: TEdit;
     btnHelp: TButton;
+    btnSave: TButton;
+    btnLoad: TButton;
     procedure btn_new_fieldClick(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
     procedure btnHelpClick(Sender: TObject);
+    procedure btnSaveClick(Sender: TObject);
+    procedure btnLoadClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -135,6 +139,48 @@ begin
   end;
 end;
 
+procedure TForm1.btnLoadClick(Sender: TObject);
+var
+  f: TextFile;
+  i, j: Byte;
+  c: char;
+begin
+  AssignFile(f, 'tmp.txt');
+  Reset(f);
+  for i := 1 to FIELD_SIZE do
+  begin
+    for j := 1 to FIELD_SIZE do
+    begin
+      read(f, c);
+      if c <> ' ' then
+        VCL_field[i, j].Text := c
+      else
+        VCL_field[i, j].Text := '';
+    end;
+    Readln(f);
+  end;
+  CloseFile(f);
+end;
+
+procedure TForm1.btnSaveClick(Sender: TObject);
+var
+  f: TextFile;
+  i, j: byte;
+begin
+  AssignFile(f, 'tmp.txt');
+  Rewrite(f);
+  for i := 1 to FIELD_SIZE do
+  begin
+    for j := 1 to FIELD_SIZE do
+      if VCL_field[i, j].Text <> '' then
+        write(f, VCL_field[i, j].Text)
+      else
+        write(f, ' ');
+    Writeln(f);
+  end;
+  CloseFile(f);
+end;
+
 procedure TForm1.btn_new_fieldClick(Sender: TObject);
 var
   i, j: Byte;
@@ -232,7 +278,7 @@ begin
         if VCL_field[i, j].Text <> '' then
           Edit1Change(VCL_field[i, j]);
   end;
-  btnHelpClick(nil);
+  //btnHelpClick(nil);
 end;
 
 end.
