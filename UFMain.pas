@@ -51,7 +51,10 @@ procedure TForm1.btnHelpClick(Sender: TObject);
 var
   i: Integer;
   j: Integer;
+  ii: Integer;
+  jj: Integer;
   v: TEVal;
+  sv: set of TEVal;
   si, sj: byte;
   cnt: byte;
 begin
@@ -137,6 +140,53 @@ begin
       end;
     end;
   end;
+  // Ищем двойки в секторах
+  for si := 1 to 3 do
+  begin
+    for sj := 1 to 3 do
+    begin
+      for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+      begin
+        for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+        begin
+          // Считаем количество возможных элементов
+          cnt := 0;
+          for v := TEVal(1) to TEVal(9) do
+            if v in field[i, j].possible_values then
+              cnt := cnt + 1;
+          if cnt = 2 then
+          begin
+            cnt := 0;
+            sv := field[i, j].possible_values;
+            for ii := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+            begin
+              for jj := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+              begin
+                if (field[ii, jj].possible_values = sv) then
+                  cnt := cnt + 1;
+              end
+            end;
+
+            if cnt = 2 then
+            begin
+              for ii := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+              begin
+                for jj := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+                begin
+                  if field[ii, jj].possible_values <> sv then
+                  begin
+                    field[ii, jj].possible_values := field[ii, jj].possible_values - sv;
+                  end;
+                end;
+              end;
+              btnHelpClick(nil);
+              Exit;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end
 end;
 
 procedure TForm1.btnLoadClick(Sender: TObject);
