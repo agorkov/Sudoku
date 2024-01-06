@@ -48,11 +48,14 @@ var
   i: Integer;
   j: Integer;
   v: TEVal;
+  si, sj: byte;
+  cnt: byte;
 begin
   for i := 1 to FIELD_SIZE do
     for j := 1 to FIELD_SIZE do
       VCL_field[i, j].Font.Color := clBlack;
 
+  //Выбираем единственную возможную цифру
   for i := 1 to FIELD_SIZE do
     for j := 1 to FIELD_SIZE do
       for v := TEVal(1) to TEVal(9) do
@@ -63,6 +66,29 @@ begin
           Edit1Change(vcl_field[i, j]);
           Exit;
         end;
+  //Ищем по блокам единственные клетки
+  for si := 1 to 3 do
+    for sj := 1 to 3 do
+      for v := TEVal(1) to TEVal(9) do
+      begin
+        cnt := 0;
+        for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+          for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+            if v in field[i, j].possible_values then
+              cnt := cnt + 1;
+        if cnt = 1 then
+        begin
+          for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+            for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+              if v in field[i, j].possible_values then
+              begin
+                VCL_field[i, j].Text := IntToStr(Ord(v));
+                VCL_field[i, j].Font.Color := clRed;
+                Edit1Change(vcl_field[i, j]);
+                Exit;
+              end;
+        end;
+      end;
 end;
 
 procedure TForm1.btn_new_fieldClick(Sender: TObject);
@@ -118,13 +144,14 @@ var
 begin
   c_i := (Sender as TEdit).Tag div FIELD_SIZE;
   c_j := (Sender as TEdit).Tag mod FIELD_SIZE;
-  if (c_i = 0) or (c_i = 10) then
-    c_i := 9;
   if (c_j = 0) or (c_j = 10) then
   begin
     c_i := c_i - 1;
     c_j := 9;
   end;
+  if (c_i = 0) or (c_i = 10) then
+    c_i := 9;
+
   txt := (Sender as TEdit).Text;
   if txt <> '' then
   begin
