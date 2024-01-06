@@ -57,6 +57,7 @@ var
   sv: set of TEVal;
   si, sj: byte;
   cnt: byte;
+  fl: boolean;
 begin
   for i := 1 to FIELD_SIZE do
     for j := 1 to FIELD_SIZE do
@@ -169,24 +170,31 @@ begin
 
             if cnt = 2 then
             begin
+              fl := False;
               for ii := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
               begin
                 for jj := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
                 begin
                   if field[ii, jj].possible_values <> sv then
                   begin
+                    if field[ii, jj].possible_values * sv <> [] then
+                      fl := true;
                     field[ii, jj].possible_values := field[ii, jj].possible_values - sv;
                   end;
                 end;
               end;
-              btnHelpClick(nil);
-              Exit;
+              if fl then
+              begin
+                btnHelpClick(nil);
+                Exit;
+              end;
             end;
           end;
         end;
       end;
     end;
-  end
+  end;
+  ShowMessage('Нет вариантов!');
 end;
 
 procedure TForm1.btnLoadClick(Sender: TObject);
