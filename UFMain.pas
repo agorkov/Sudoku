@@ -43,11 +43,294 @@ type
     possible_values: set of TEVal;
   end;
 
+  TAField = array[1..FIELD_SIZE, 1..FIELD_SIZE] of TRCell;
+
 var
   VCL_field: array[1..FIELD_SIZE, 1..FIELD_SIZE] of TEdit;
-  field: array[1..FIELD_SIZE, 1..FIELD_SIZE] of TRCell;
+  field: TAField;
 
 procedure TForm1.btnHelpClick(Sender: TObject);
+
+  procedure OnlyOneValueInCell(const f: TAField; var ri, rj, rv: byte);
+  var
+    i, j: Byte;
+    v: TEVal;
+  begin
+    ri := 0;
+    rj := 0;
+    rv := 0;
+    for i := 1 to FIELD_SIZE do
+    begin
+      for j := 1 to FIELD_SIZE do
+      begin
+        for v := TEVal(1) to TEVal(9) do
+        begin
+          if field[i, j].possible_values = [v] then
+          begin
+            ri := i;
+            rj := j;
+            rv := Ord(v);
+            Exit;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  procedure OnlyOneCellInBlock(const f: TAField; var ri, rj, rv: byte);
+  var
+    i, j: Byte;
+    v: TEVal;
+    si, sj: Byte;
+    cnt: Byte;
+  begin
+    ri := 0;
+    rj := 0;
+    rv := 0;
+    for si := 1 to 3 do
+      for sj := 1 to 3 do
+        for v := TEVal(1) to TEVal(9) do
+        begin
+          cnt := 0;
+          for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+            for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+              if v in field[i, j].possible_values then
+                cnt := cnt + 1;
+          if cnt = 1 then
+          begin
+            for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+              for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+                if v in field[i, j].possible_values then
+                begin
+                  ri := i;
+                  rj := j;
+                  rv := Ord(v);
+                  Exit;
+                end;
+          end;
+        end;
+  end;
+
+  procedure OnlyOneCellInRow(const f: TAField; var ri, rj, rv: byte);
+  var
+    i, j: Byte;
+    v: TEVal;
+    si, sj: Byte;
+    cnt: Byte;
+  begin
+    ri := 0;
+    rj := 0;
+    rv := 0;
+    for i := 1 to FIELD_SIZE do
+    begin
+      for v := TEVal(1) to TEVal(9) do
+      begin
+        cnt := 0;
+        for j := 1 to FIELD_SIZE do
+          if v in field[i, j].possible_values then
+            cnt := cnt + 1;
+        if cnt = 1 then
+        begin
+          for j := 1 to FIELD_SIZE do
+            if v in field[i, j].possible_values then
+            begin
+              ri := i;
+              rj := j;
+              rv := Ord(v);
+              Exit;
+            end;
+        end;
+      end;
+    end;
+  end;
+
+  procedure OnlyOneCellInCol(const f: TAField; var ri, rj, rv: byte);
+  var
+    i, j: Byte;
+    v: TEVal;
+    si, sj: Byte;
+    cnt: Byte;
+  begin
+    ri := 0;
+    rj := 0;
+    rv := 0;
+    for j := 1 to FIELD_SIZE do
+    begin
+      for v := TEVal(1) to TEVal(9) do
+      begin
+        cnt := 0;
+        for i := 1 to FIELD_SIZE do
+          if v in field[i, j].possible_values then
+            cnt := cnt + 1;
+        if cnt = 1 then
+        begin
+          for i := 1 to FIELD_SIZE do
+            if v in field[i, j].possible_values then
+            begin
+              ri := i;
+              rj := j;
+              rv := Ord(v);
+              Exit;
+            end;
+        end;
+      end;
+    end;
+  end;
+
+  procedure PairInBlock(var f: TAField; var fl: boolean);
+  var
+    i, j: Byte;
+    ii, jj: Byte;
+    v: TEVal;
+    sv: set of TEVal;
+    si, sj: Byte;
+    cnt: Byte;
+  begin
+    fl := False;
+    for si := 1 to 3 do
+    begin
+      for sj := 1 to 3 do
+      begin
+        for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+        begin
+          for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+          begin
+            // Считаем количество возможных элементов
+            cnt := 0;
+            for v := TEVal(1) to TEVal(9) do
+              if v in field[i, j].possible_values then
+                cnt := cnt + 1;
+            if cnt = 2 then
+            begin
+              cnt := 0;
+              sv := field[i, j].possible_values;
+              for ii := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+              begin
+                for jj := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+                begin
+                  if (field[ii, jj].possible_values = sv) then
+                    cnt := cnt + 1;
+                end
+              end;
+
+              if cnt = 2 then
+              begin
+                for ii := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+                begin
+                  for jj := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+                  begin
+                    if field[ii, jj].possible_values <> sv then
+                    begin
+                      if field[ii, jj].possible_values * sv <> [] then
+                        fl := true;
+                      field[ii, jj].possible_values := field[ii, jj].possible_values - sv;
+                    end;
+                  end;
+                end;
+                if fl then
+                  exit;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  procedure PairInRow(var f: TAField; var fl: boolean);
+  var
+    i, j: Byte;
+    ii, jj: Byte;
+    v: TEVal;
+    sv: set of TEVal;
+    si, sj: Byte;
+    cnt: Byte;
+  begin
+    fl := False;
+    for i := 1 to FIELD_SIZE do
+      for j := 1 to FIELD_SIZE do
+      begin
+        // Считаем количество возможных элементов
+        cnt := 0;
+        for v := TEVal(1) to TEVal(9) do
+          if v in field[i, j].possible_values then
+            cnt := cnt + 1;
+        if cnt = 2 then
+        begin
+          cnt := 0;
+          sv := field[i, j].possible_values;
+
+          for jj := 1 to FIELD_SIZE do
+          begin
+            if (field[i, jj].possible_values = sv) then
+              cnt := cnt + 1;
+          end;
+
+          if cnt = 2 then
+          begin
+            for jj := 1 to FIELD_SIZE do
+            begin
+              if field[i, jj].possible_values <> sv then
+              begin
+                if field[i, jj].possible_values * sv <> [] then
+                  fl := true;
+                field[i, jj].possible_values := field[i, jj].possible_values - sv;
+              end;
+            end;
+          end;
+          if fl then
+            Exit;
+        end;
+      end;
+  end;
+
+  procedure PairInCol(var f: TAField; var fl: boolean);
+  var
+    i, j: Byte;
+    ii, jj: Byte;
+    v: TEVal;
+    sv: set of TEVal;
+    si, sj: Byte;
+    cnt: Byte;
+  begin
+    fl := False;
+    for j := 1 to FIELD_SIZE do
+      for i := 1 to FIELD_SIZE do
+      begin
+        // Считаем количество возможных элементов
+        cnt := 0;
+        for v := TEVal(1) to TEVal(9) do
+          if v in field[i, j].possible_values then
+            cnt := cnt + 1;
+        if cnt = 2 then
+        begin
+          cnt := 0;
+          sv := field[i, j].possible_values;
+
+          for ii := 1 to FIELD_SIZE do
+          begin
+            if (field[ii, j].possible_values = sv) then
+              cnt := cnt + 1;
+          end;
+
+          if cnt = 2 then
+          begin
+            for ii := 1 to FIELD_SIZE do
+            begin
+              if field[ii, j].possible_values <> sv then
+              begin
+                if field[ii, j].possible_values * sv <> [] then
+                  fl := true;
+                field[ii, j].possible_values := field[ii, j].possible_values - sv;
+              end;
+            end;
+          end;
+          if fl then
+            Exit;
+        end;
+      end;
+  end;
+
 var
   i: Integer;
   j: Integer;
@@ -58,223 +341,76 @@ var
   si, sj: byte;
   cnt: byte;
   fl: boolean;
+  ri, rj, rv: Byte;
 begin
   for i := 1 to FIELD_SIZE do
     for j := 1 to FIELD_SIZE do
       VCL_field[i, j].Font.Color := clBlack;
 
   //Выбираем единственную возможную цифру
-  for i := 1 to FIELD_SIZE do
-    for j := 1 to FIELD_SIZE do
-      for v := TEVal(1) to TEVal(9) do
-        if field[i, j].possible_values = [v] then
-        begin
-          VCL_field[i, j].Text := IntToStr(Ord(v));
-          VCL_field[i, j].Font.Color := clRed;
-          Edit1Change(vcl_field[i, j]);
-          Exit;
-        end;
+  OnlyOneValueInCell(field, ri, rj, rv);
+  if (ri <> 0) and (rj <> 0) and (rv <> 0) then
+  begin
+    VCL_field[ri, rj].Text := IntToStr(Ord(rv));
+    VCL_field[ri, rj].Font.Color := clRed;
+    Edit1Change(vcl_field[ri, rj]);
+    Exit;
+  end;
+  
   //Ищем по блокам единственные клетки
-  for si := 1 to 3 do
-    for sj := 1 to 3 do
-      for v := TEVal(1) to TEVal(9) do
-      begin
-        cnt := 0;
-        for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
-          for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
-            if v in field[i, j].possible_values then
-              cnt := cnt + 1;
-        if cnt = 1 then
-        begin
-          for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
-            for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
-              if v in field[i, j].possible_values then
-              begin
-                VCL_field[i, j].Text := IntToStr(Ord(v));
-                VCL_field[i, j].Font.Color := clRed;
-                Edit1Change(vcl_field[i, j]);
-                Exit;
-              end;
-        end;
-      end;
+  OnlyOneCellInBlock(field, ri, rj, rv);
+  if (ri <> 0) and (rj <> 0) and (rv <> 0) then
+  begin
+    VCL_field[ri, rj].Text := IntToStr(Ord(rv));
+    VCL_field[ri, rj].Font.Color := clRed;
+    Edit1Change(vcl_field[ri, rj]);
+    Exit;
+  end;
+  
   //Ищем по строкам единственные возможные размещения
-  for i := 1 to FIELD_SIZE do
+  OnlyOneCellInRow(field, ri, rj, rv);
+  if (ri <> 0) and (rj <> 0) and (rv <> 0) then
   begin
-    for v := TEVal(1) to TEVal(9) do
-    begin
-      cnt := 0;
-      for j := 1 to FIELD_SIZE do
-        if v in field[i, j].possible_values then
-          cnt := cnt + 1;
-      if cnt = 1 then
-      begin
-        for j := 1 to FIELD_SIZE do
-          if v in field[i, j].possible_values then
-          begin
-            VCL_field[i, j].Text := IntToStr(Ord(v));
-            VCL_field[i, j].Font.Color := clRed;
-            Edit1Change(vcl_field[i, j]);
-            Exit;
-          end;
-      end;
-    end;
+    VCL_field[ri, rj].Text := IntToStr(Ord(rv));
+    VCL_field[ri, rj].Font.Color := clRed;
+    Edit1Change(vcl_field[ri, rj]);
+    Exit;
   end;
+  
   //Ищем по столбцам единственные возможные размещения
-  for j := 1 to FIELD_SIZE do
+  OnlyOneCellInCol(field, ri, rj, rv);
+  if (ri <> 0) and (rj <> 0) and (rv <> 0) then
   begin
-    for v := TEVal(1) to TEVal(9) do
-    begin
-      cnt := 0;
-      for i := 1 to FIELD_SIZE do
-        if v in field[i, j].possible_values then
-          cnt := cnt + 1;
-      if cnt = 1 then
-      begin
-        for i := 1 to FIELD_SIZE do
-          if v in field[i, j].possible_values then
-          begin
-            VCL_field[i, j].Text := IntToStr(Ord(v));
-            VCL_field[i, j].Font.Color := clRed;
-            Edit1Change(vcl_field[i, j]);
-            Exit;
-          end;
-      end;
-    end;
+    VCL_field[ri, rj].Text := IntToStr(Ord(rv));
+    VCL_field[ri, rj].Font.Color := clRed;
+    Edit1Change(vcl_field[ri, rj]);
+    Exit;
   end;
+  
   // Ищем двойки в секторах
-  for si := 1 to 3 do
+  PairInBlock(field, fl);
+  if fl then
   begin
-    for sj := 1 to 3 do
-    begin
-      for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
-      begin
-        for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
-        begin
-          // Считаем количество возможных элементов
-          cnt := 0;
-          for v := TEVal(1) to TEVal(9) do
-            if v in field[i, j].possible_values then
-              cnt := cnt + 1;
-          if cnt = 2 then
-          begin
-            cnt := 0;
-            sv := field[i, j].possible_values;
-            for ii := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
-            begin
-              for jj := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
-              begin
-                if (field[ii, jj].possible_values = sv) then
-                  cnt := cnt + 1;
-              end
-            end;
-
-            if cnt = 2 then
-            begin
-              fl := False;
-              for ii := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
-              begin
-                for jj := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
-                begin
-                  if field[ii, jj].possible_values <> sv then
-                  begin
-                    if field[ii, jj].possible_values * sv <> [] then
-                      fl := true;
-                    field[ii, jj].possible_values := field[ii, jj].possible_values - sv;
-                  end;
-                end;
-              end;
-              if fl then
-              begin
-                btnHelpClick(nil);
-                Exit;
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
+    btnHelpClick(nil);
+    Exit;
   end;
+  
   // Ищем двойки в строках
-  for i := 1 to FIELD_SIZE do
-    for j := 1 to FIELD_SIZE do
-    begin
-    // Считаем количество возможных элементов
-      cnt := 0;
-      for v := TEVal(1) to TEVal(9) do
-        if v in field[i, j].possible_values then
-          cnt := cnt + 1;
-      if cnt = 2 then
-      begin
-        cnt := 0;
-        sv := field[i, j].possible_values;
+  PairInRow(field, fl);
+  if fl then
+  begin
+    btnHelpClick(nil);
+    Exit;
+  end;
+  
+  // Ищем двойки в столбцах
+  PairInCol(field, fl);
+  if fl then
+  begin
+    btnHelpClick(nil);
+    Exit;
+  end;
 
-        for jj := 1 to FIELD_SIZE do
-        begin
-          if (field[i, jj].possible_values = sv) then
-            cnt := cnt + 1;
-        end;
-
-        if cnt = 2 then
-        begin
-          fl := False;
-          for jj := 1 to FIELD_SIZE do
-          begin
-            if field[i, jj].possible_values <> sv then
-            begin
-              if field[i, jj].possible_values * sv <> [] then
-                fl := true;
-              field[i, jj].possible_values := field[i, jj].possible_values - sv;
-            end;
-          end;
-        end;
-        if fl then
-        begin
-          btnHelpClick(nil);
-          Exit;
-        end;
-      end;
-    end;
-
-    // Ищем двойки в столбцах
-  for j := 1 to FIELD_SIZE do
-    for i := 1 to FIELD_SIZE do
-    begin
-    // Считаем количество возможных элементов
-      cnt := 0;
-      for v := TEVal(1) to TEVal(9) do
-        if v in field[i, j].possible_values then
-          cnt := cnt + 1;
-      if cnt = 2 then
-      begin
-        cnt := 0;
-        sv := field[i, j].possible_values;
-
-        for ii := 1 to FIELD_SIZE do
-        begin
-          if (field[ii, j].possible_values = sv) then
-            cnt := cnt + 1;
-        end;
-
-        if cnt = 2 then
-        begin
-          fl := False;
-          for ii := 1 to FIELD_SIZE do
-          begin
-            if field[ii, j].possible_values <> sv then
-            begin
-              if field[ii, j].possible_values * sv <> [] then
-                fl := true;
-              field[ii, j].possible_values := field[ii, j].possible_values - sv;
-            end;
-          end;
-        end;
-        if fl then
-        begin
-          btnHelpClick(nil);
-          Exit;
-        end;
-      end;
-    end;
   ShowMessage('Нет вариантов!');
 end;
 
@@ -284,6 +420,7 @@ var
   i, j: Byte;
   c: char;
 begin
+  btn_new_fieldClick(nil);
   AssignFile(f, 'tmp.txt');
   Reset(f);
   for i := 1 to FIELD_SIZE do
