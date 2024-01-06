@@ -11,8 +11,10 @@ type
   TForm1 = class(TForm)
     btn_new_field: TButton;
     Edit1: TEdit;
+    btnHelp: TButton;
     procedure btn_new_fieldClick(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
+    procedure btnHelpClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -40,6 +42,28 @@ type
 var
   VCL_field: array[1..FIELD_SIZE, 1..FIELD_SIZE] of TEdit;
   field: array[1..FIELD_SIZE, 1..FIELD_SIZE] of TRCell;
+
+procedure TForm1.btnHelpClick(Sender: TObject);
+var
+  i: Integer;
+  j: Integer;
+  v: TEVal;
+begin
+  for i := 1 to FIELD_SIZE do
+    for j := 1 to FIELD_SIZE do
+      VCL_field[i, j].Font.Color := clBlack;
+
+  for i := 1 to FIELD_SIZE do
+    for j := 1 to FIELD_SIZE do
+      for v := TEVal(1) to TEVal(9) do
+        if field[i, j].possible_values = [v] then
+        begin
+          VCL_field[i, j].Text := IntToStr(Ord(v));
+          VCL_field[i, j].Font.Color := clRed;
+          Edit1Change(vcl_field[i, j]);
+          Exit;
+        end;
+end;
 
 procedure TForm1.btn_new_fieldClick(Sender: TObject);
 var
@@ -73,7 +97,7 @@ begin
 
         VCL_field[i, j].Font.Size := 16;
         VCL_field[i, j].Alignment := taCenter;
-        VCL_field[i, j].Text := '0';
+        VCL_field[i, j].Text := '';
 
         VCL_field[i, j].Visible := True;
 
@@ -86,6 +110,7 @@ end;
 
 procedure TForm1.Edit1Change(Sender: TObject);
 var
+  txt: string;
   c_i, c_j: byte;
   c_val: TEVal;
   i, j: Integer;
@@ -96,26 +121,46 @@ begin
   if (c_i = 0) or (c_i = 10) then
     c_i := 9;
   if (c_j = 0) or (c_j = 10) then
+  begin
+    c_i := c_i - 1;
     c_j := 9;
-  c_val := TEVal(StrToInt((Sender as TEdit).Text));
+  end;
+  txt := (Sender as TEdit).Text;
+  if txt <> '' then
+  begin
+    c_val := TEVal(StrToInt(txt));
 
-  field[c_i, c_j].value := Ord(c_val);
-  field[c_i, c_j].possible_values := [c_val];
+    field[c_i, c_j].value := Ord(c_val);
+    field[c_i, c_j].possible_values := [c_val];
 
-  // Удаляем из строки
-  for j := 1 to FIELD_SIZE do
-    Exclude(field[c_i, j].possible_values, c_val);
-  // Удаляем из столбца
-  for i := 1 to FIELD_SIZE do
-    Exclude(field[i, c_j].possible_values, c_val);
-  // Удаляем из маленького квадратика
-  sfi := ((c_i - 1) div 3) * 3 + 1;
-  sti := sfi + 3 - 1;
-  sfj := ((c_j - 1) div 3) * 3 + 1;
-  stj := sfj + 3 - 1;
-  for i := sfi to sti do
-    for j := sfj to stj do
-      Exclude(field[i, j].possible_values, c_val);
+    // Удаляем из строки
+    for j := 1 to FIELD_SIZE do
+      Exclude(field[c_i, j].possible_values, c_val);
+    // Удаляем из столбца
+    for i := 1 to FIELD_SIZE do
+      Exclude(field[i, c_j].possible_values, c_val);
+    // Удаляем из маленького квадратика
+    sfi := ((c_i - 1) div 3) * 3 + 1;
+    sti := sfi + 3 - 1;
+    sfj := ((c_j - 1) div 3) * 3 + 1;
+    stj := sfj + 3 - 1;
+    for i := sfi to sti do
+      for j := sfj to stj do
+        Exclude(field[i, j].possible_values, c_val);
+  end
+  else
+  begin
+    for i := 1 to FIELD_SIZE do
+      for j := 1 to FIELD_SIZE do
+      begin
+        field[i, j].value := 0;
+        field[i, j].possible_values := [one, two, three, four, five, six, seven, eight, nine];
+      end;
+    for i := 1 to FIELD_SIZE do
+      for j := 1 to FIELD_SIZE do
+        if VCL_field[i, j].Text <> '' then
+          Edit1Change(VCL_field[i, j]);
+  end;
 end;
 
 end.

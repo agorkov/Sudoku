@@ -32,4 +32,13 @@ object Form1: TForm1
     Text = 'Edit1'
     OnChange = Edit1Change
   end
+  object btnHelp: TButton
+    Left = 768
+    Top = 47
+    Width = 107
+    Height = 25
+    Caption = 'btnHelp'
+    TabOrder = 2
+    OnClick = btnHelpClick
+  end
 end
