@@ -194,6 +194,87 @@ begin
       end;
     end;
   end;
+  // Ищем двойки в строках
+  for i := 1 to FIELD_SIZE do
+    for j := 1 to FIELD_SIZE do
+    begin
+    // Считаем количество возможных элементов
+      cnt := 0;
+      for v := TEVal(1) to TEVal(9) do
+        if v in field[i, j].possible_values then
+          cnt := cnt + 1;
+      if cnt = 2 then
+      begin
+        cnt := 0;
+        sv := field[i, j].possible_values;
+
+        for jj := 1 to FIELD_SIZE do
+        begin
+          if (field[i, jj].possible_values = sv) then
+            cnt := cnt + 1;
+        end;
+
+        if cnt = 2 then
+        begin
+          fl := False;
+          for jj := 1 to FIELD_SIZE do
+          begin
+            if field[i, jj].possible_values <> sv then
+            begin
+              if field[i, jj].possible_values * sv <> [] then
+                fl := true;
+              field[i, jj].possible_values := field[i, jj].possible_values - sv;
+            end;
+          end;
+        end;
+        if fl then
+        begin
+          btnHelpClick(nil);
+          Exit;
+        end;
+      end;
+    end;
+
+    // Ищем двойки в столбцах
+  for j := 1 to FIELD_SIZE do
+    for i := 1 to FIELD_SIZE do
+    begin
+    // Считаем количество возможных элементов
+      cnt := 0;
+      for v := TEVal(1) to TEVal(9) do
+        if v in field[i, j].possible_values then
+          cnt := cnt + 1;
+      if cnt = 2 then
+      begin
+        cnt := 0;
+        sv := field[i, j].possible_values;
+
+        for ii := 1 to FIELD_SIZE do
+        begin
+          if (field[ii, j].possible_values = sv) then
+            cnt := cnt + 1;
+        end;
+
+        if cnt = 2 then
+        begin
+          fl := False;
+          for ii := 1 to FIELD_SIZE do
+          begin
+            if field[ii, j].possible_values <> sv then
+            begin
+              if field[ii, j].possible_values * sv <> [] then
+                fl := true;
+              field[ii, j].possible_values := field[ii, j].possible_values - sv;
+            end;
+          end;
+        end;
+        if fl then
+        begin
+          btnHelpClick(nil);
+          Exit;
+        end;
+      end;
+    end;
   ShowMessage('Нет вариантов!');
 end;
 
