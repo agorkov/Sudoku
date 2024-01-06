@@ -22,4 +22,14 @@ object Form1: TForm1
     TabOrder = 0
     OnClick = btn_new_fieldClick
   end
+  object Edit1: TEdit
+    Tag = 12
+    Left = 392
+    Top = 352
+    Width = 121
+    Height = 21
+    TabOrder = 1
+    Text = 'Edit1'
+    OnChange = Edit1Change
+  end
 end
