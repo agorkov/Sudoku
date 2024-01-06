@@ -331,6 +331,144 @@ procedure TForm1.btnHelpClick(Sender: TObject);
       end;
   end;
 
+  procedure SecretPairInBlock(var f: TAField; var fl: boolean);
+  var
+    i, j: Byte;
+    ii, jj: Byte;
+    v, v1, v2: TEVal;
+    sv, s: set of TEVal;
+    si, sj: Byte;
+    ca, co: Byte;
+    tf: TAField;
+  begin
+    fl := false;
+    for v1 := TEVal(1) to TEVal(8) do
+    begin
+      for v2 := TEVal(Ord(v1) + 1) to TEVal(9) do
+      begin
+        ca := 0;
+        co := 0;
+        for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+        begin
+          for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+          begin
+            if (v1 in f[i, j].possible_values) and (v2 in f[i, j].possible_values) then
+              ca := ca + 1;
+            if (v1 in f[i, j].possible_values) or (v2 in f[i, j].possible_values) then
+              co := co + 1;
+          end;
+        end;
+        if (ca = 2) and (co = 2) then
+        begin
+          for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+          begin
+            for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+            begin
+              if (v1 in f[i, j].possible_values) and (v2 in f[i, j].possible_values) then
+                if field[i, j].possible_values - [v1, v2] <> [] then
+                begin
+                  f[i, j].possible_values := [v1, v2];
+                  fl := true;
+                end;
+            end;
+          end;
+          if fl then
+            Exit;
+        end;
+      end;
+    end;
+  end;
+
+  procedure SecretPairInRow(var f: TAField; var fl: boolean);
+  var
+    i, j: Byte;
+    ii, jj: Byte;
+    v1, v2: TEVal;
+    sv: set of TEVal;
+    si, sj: Byte;
+    ca, co: Byte;
+    tf: TAField;
+  begin
+    fl := false;
+    for v1 := TEVal(1) to TEVal(8) do
+    begin
+      for v2 := TEVal(Ord(v1) + 1) to TEVal(9) do
+      begin
+        for i := 1 to FIELD_SIZE do
+        begin
+          ca := 0;
+          co := 0;
+          for j := 1 to FIELD_SIZE do
+          begin
+            if (v1 in f[i, j].possible_values) and (v2 in f[i, j].possible_values) then
+              ca := ca + 1;
+            if (v1 in f[i, j].possible_values) or (v2 in f[i, j].possible_values) then
+              co := co + 1;
+          end;
+          if (ca = 2) and (co = 2) then
+          begin
+            for j := 1 to FIELD_SIZE do
+            begin
+              if (v1 in f[i, j].possible_values) and (v2 in f[i, j].possible_values) then
+                if f[i, j].possible_values - [v1, v2] <> [] then
+                begin
+                  f[i, j].possible_values := [v1, v2];
+                  fl := true;
+                end;
+            end;
+            if fl then
+              Exit;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  procedure SecretPairInCol(var f: TAField; var fl: boolean);
+  var
+    i, j: Byte;
+    ii, jj: Byte;
+    v1, v2: TEVal;
+    sv: set of TEVal;
+    si, sj: Byte;
+    ca, co: Byte;
+    tf: TAField;
+  begin
+    fl := false;
+    for v1 := TEVal(1) to TEVal(8) do
+    begin
+      for v2 := TEVal(Ord(v1) + 1) to TEVal(9) do
+      begin
+        for j := 1 to FIELD_SIZE do
+        begin
+          ca := 0;
+          co := 0;
+          for i := 1 to FIELD_SIZE do
+          begin
+            if (v1 in f[i, j].possible_values) and (v2 in f[i, j].possible_values) then
+              ca := ca + 1;
+            if (v1 in f[i, j].possible_values) or (v2 in f[i, j].possible_values) then
+              co := co + 1;
+          end;
+          if (ca = 2) and (co = 2) then
+          begin
+            for i := 1 to FIELD_SIZE do
+            begin
+              if (v1 in f[i, j].possible_values) and (v2 in f[i, j].possible_values) then
+                if f[i, j].possible_values - [v1, v2] <> [] then
+                begin
+                  f[i, j].possible_values := [v1, v2];
+                  fl := true
+                end;
+            end;
+            if fl then
+              Exit;
+          end;
+        end;
+      end;
+    end;
+  end;
+
 var
   i: Integer;
   j: Integer;
@@ -405,6 +543,30 @@ begin
   
   // Ищем двойки в столбцах
   PairInCol(field, fl);
+  if fl then
+  begin
+    btnHelpClick(nil);
+    Exit;
+  end;
+
+  // Ищем секретные двойки в секторах
+  SecretPairInBlock(field, fl);
+  if fl then
+  begin
+    btnHelpClick(nil);
+    Exit;
+  end;
+
+  // Ищем секретные двойки в строках
+  SecretPairInRow(field, fl);
+  if fl then
+  begin
+    btnHelpClick(nil);
+    Exit;
+  end;
+
+  // Ищем секретные двойки в столбцах
+  SecretPairInCol(field, fl);
   if fl then
   begin
     btnHelpClick(nil);
