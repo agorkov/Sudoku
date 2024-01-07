@@ -10,15 +10,16 @@ uses
 type
   TForm1 = class(TForm)
     btn_new_field: TButton;
-    Edit1: TEdit;
     btnHelp: TButton;
     btnSave: TButton;
     btnLoad: TButton;
+    btnpossible_values: TButton;
     procedure btn_new_fieldClick(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
     procedure btnHelpClick(Sender: TObject);
     procedure btnSaveClick(Sender: TObject);
     procedure btnLoadClick(Sender: TObject);
+    procedure btnpossible_valuesClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -469,6 +470,75 @@ procedure TForm1.btnHelpClick(Sender: TObject);
     end;
   end;
 
+  procedure AllValuesInBlockInOneRowOrCol(var f: TAField; var fl: boolean);
+  var
+    i, j, k: Byte;
+    ii, jj: Byte;
+    v: TEVal;
+    r, c: set of byte;
+    sv, s: set of TEVal;
+    si, sj: Byte;
+    tf: TAField;
+  begin
+    fl := false;
+
+    for v := TEVal(1) to TEVal(8) do
+    begin
+      for si := 1 to 3 do
+        for sj := 1 to 3 do
+        begin
+          r := [];
+          c := [];
+          for i := (si - 1) * 3 + 1 to (si - 1) * 3 + 3 do
+          begin
+            for j := (sj - 1) * 3 + 1 to (sj - 1) * 3 + 3 do
+            begin
+              if v in f[i, j].possible_values then
+              begin
+                r := r + [i];
+                c := c + [j];
+              end;
+            end;
+          end;
+
+          for k := 1 to 9 do
+          begin
+            if [k] = r then
+            begin
+              for j := 1 to FIELD_SIZE do
+              begin
+                if (j < (sj - 1) * 3 + 1) or (j > (sj - 1) * 3 + 3) then
+                begin
+                  if v in f[k, j].possible_values then
+                  begin
+                    f[k, j].possible_values := f[k, j].possible_values - [v];
+                    fl := True;
+                  end;
+                end;
+              end;
+            end;
+            if [k] = c then
+            begin
+              for i := 1 to FIELD_SIZE do
+              begin
+                if (i < (si - 1) * 3 + 1) or (i > (si - 1) * 3 + 3) then
+                begin
+                  if v in f[i, k].possible_values then
+                  begin
+                    f[i, k].possible_values := f[i, k].possible_values - [v];
+                    fl := True;
+                  end;
+                end;
+              end;
+            end;
+          end;
+
+          if fl then
+            Exit;
+        end;
+    end;
+  end;
+
 var
   i: Integer;
   j: Integer;
@@ -494,7 +564,7 @@ begin
     Edit1Change(vcl_field[ri, rj]);
     Exit;
   end;
-  
+
   //Ищем по блокам единственные клетки
   OnlyOneCellInBlock(field, ri, rj, rv);
   if (ri <> 0) and (rj <> 0) and (rv <> 0) then
@@ -504,7 +574,7 @@ begin
     Edit1Change(vcl_field[ri, rj]);
     Exit;
   end;
-  
+
   //Ищем по строкам единственные возможные размещения
   OnlyOneCellInRow(field, ri, rj, rv);
   if (ri <> 0) and (rj <> 0) and (rv <> 0) then
@@ -514,7 +584,7 @@ begin
     Edit1Change(vcl_field[ri, rj]);
     Exit;
   end;
-  
+
   //Ищем по столбцам единственные возможные размещения
   OnlyOneCellInCol(field, ri, rj, rv);
   if (ri <> 0) and (rj <> 0) and (rv <> 0) then
@@ -524,7 +594,7 @@ begin
     Edit1Change(vcl_field[ri, rj]);
     Exit;
   end;
-  
+
   // Ищем двойки в секторах
   PairInBlock(field, fl);
   if fl then
@@ -532,7 +602,7 @@ begin
     btnHelpClick(nil);
     Exit;
   end;
-  
+
   // Ищем двойки в строках
   PairInRow(field, fl);
   if fl then
@@ -540,7 +610,7 @@ begin
     btnHelpClick(nil);
     Exit;
   end;
-  
+
   // Ищем двойки в столбцах
   PairInCol(field, fl);
   if fl then
@@ -573,6 +643,14 @@ begin
     Exit;
   end;
 
+  //
+  AllValuesInBlockInOneRowOrCol(field, fl);
+  if fl then
+  begin
+    btnHelpClick(nil);
+    Exit;
+  end;
+
   ShowMessage('Нет вариантов!');
 end;
 
@@ -598,6 +676,24 @@ begin
     Readln(f);
   end;
   CloseFile(f);
+end;
+
+procedure TForm1.btnpossible_valuesClick(Sender: TObject);
+var
+  i, j: Byte;
+  e: TEVal;
+  s: string;
+begin
+  for i := 1 to FIELD_SIZE do
+    for j := 1 to FIELD_SIZE do
+    begin
+      s := '';
+      for e := TEVal(1) to TEVal(9) do
+        if e in field[i, j].possible_values then
+          s := s + inttostr(ord(e));
+      VCL_field[i, j].Hint := s;
+
+    end;
 end;
 
 procedure TForm1.btnSaveClick(Sender: TObject);
@@ -654,6 +750,9 @@ begin
         VCL_field[i, j].Text := '';
 
         VCL_field[i, j].Visible := True;
+
+        VCL_field[i, j].Hint := '';
+        VCL_field[i, j].ShowHint := True;
 
         VCL_field[i, j].OnChange := Edit1Change;
       finally

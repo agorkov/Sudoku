@@ -22,23 +22,13 @@ object Form1: TForm1
     TabOrder = 0
     OnClick = btn_new_fieldClick
   end
-  object Edit1: TEdit
-    Tag = 12
-    Left = 392
-    Top = 352
-    Width = 121
-    Height = 21
-    TabOrder = 1
-    Text = 'Edit1'
-    OnChange = Edit1Change
-  end
   object btnHelp: TButton
     Left = 772
     Top = 127
     Width = 107
     Height = 25
     Caption = 'btnHelp'
-    TabOrder = 2
+    TabOrder = 1
     OnClick = btnHelpClick
   end
   object btnSave: TButton
@@ -47,7 +37,7 @@ object Form1: TForm1
     Width = 107
     Height = 25
     Caption = 'btnSave'
-    TabOrder = 3
+    TabOrder = 2
     OnClick = btnSaveClick
   end
   object btnLoad: TButton
@@ -56,7 +46,16 @@ object Form1: TForm1
     Width = 107
     Height = 25
     Caption = 'btnLoad'
-    TabOrder = 4
+    TabOrder = 3
     OnClick = btnLoadClick
+  end
+  object btnpossible_values: TButton
+    Left = 772
+    Top = 152
+    Width = 107
+    Height = 25
+    Caption = 'btnpossible_values'
+    TabOrder = 4
+    OnClick = btnpossible_valuesClick
   end
 end
