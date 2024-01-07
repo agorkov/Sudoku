@@ -3,7 +3,7 @@ object Form1: TForm1
   Top = 0
   Caption = 'Form1'
   ClientHeight = 688
-  ClientWidth = 887
+  ClientWidth = 471
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,8 +14,8 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object btn_new_field: TButton
-    Left = 768
-    Top = 16
+    Left = 352
+    Top = 8
     Width = 107
     Height = 25
     Caption = 'btn_new_field'
@@ -23,8 +23,8 @@ object Form1: TForm1
     OnClick = btn_new_fieldClick
   end
   object btnHelp: TButton
-    Left = 772
-    Top = 127
+    Left = 356
+    Top = 119
     Width = 107
     Height = 25
     Caption = 'btnHelp'
@@ -32,8 +32,8 @@ object Form1: TForm1
     OnClick = btnHelpClick
   end
   object btnSave: TButton
-    Left = 768
-    Top = 47
+    Left = 352
+    Top = 39
     Width = 107
     Height = 25
     Caption = 'btnSave'
@@ -41,8 +41,8 @@ object Form1: TForm1
     OnClick = btnSaveClick
   end
   object btnLoad: TButton
-    Left = 768
-    Top = 78
+    Left = 352
+    Top = 70
     Width = 107
     Height = 25
     Caption = 'btnLoad'
@@ -50,12 +50,21 @@ object Form1: TForm1
     OnClick = btnLoadClick
   end
   object btnpossible_values: TButton
-    Left = 772
-    Top = 152
+    Left = 356
+    Top = 144
     Width = 107
     Height = 25
     Caption = 'btnpossible_values'
     TabOrder = 4
     OnClick = btnpossible_valuesClick
+  end
+  object mmo1: TMemo
+    Left = 0
+    Top = 352
+    Width = 471
+    Height = 336
+    Align = alBottom
+    ScrollBars = ssVertical
+    TabOrder = 5
   end
 end

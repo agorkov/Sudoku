@@ -14,6 +14,7 @@ type
     btnSave: TButton;
     btnLoad: TButton;
     btnpossible_values: TButton;
+    mmo1: TMemo;
     procedure btn_new_fieldClick(Sender: TObject);
     procedure Edit1Change(Sender: TObject);
     procedure btnHelpClick(Sender: TObject);
@@ -562,6 +563,7 @@ begin
     VCL_field[ri, rj].Text := IntToStr(Ord(rv));
     VCL_field[ri, rj].Font.Color := clRed;
     Edit1Change(vcl_field[ri, rj]);
+    mmo1.Lines.Add('Единственная возможная цифра!');
     Exit;
   end;
 
@@ -572,6 +574,7 @@ begin
     VCL_field[ri, rj].Text := IntToStr(Ord(rv));
     VCL_field[ri, rj].Font.Color := clRed;
     Edit1Change(vcl_field[ri, rj]);
+    mmo1.Lines.Add('Единственная клетка в блоке!');
     Exit;
   end;
 
@@ -582,6 +585,7 @@ begin
     VCL_field[ri, rj].Text := IntToStr(Ord(rv));
     VCL_field[ri, rj].Font.Color := clRed;
     Edit1Change(vcl_field[ri, rj]);
+    mmo1.Lines.Add('Единственная клетка в строке!');
     Exit;
   end;
 
@@ -592,6 +596,7 @@ begin
     VCL_field[ri, rj].Text := IntToStr(Ord(rv));
     VCL_field[ri, rj].Font.Color := clRed;
     Edit1Change(vcl_field[ri, rj]);
+    mmo1.Lines.Add('Единственная клетка в столбце!');
     Exit;
   end;
 
@@ -599,6 +604,7 @@ begin
   PairInBlock(field, fl);
   if fl then
   begin
+    mmo1.Lines.Add('Пара в блоке');
     btnHelpClick(nil);
     Exit;
   end;
@@ -607,6 +613,7 @@ begin
   PairInRow(field, fl);
   if fl then
   begin
+    mmo1.Lines.Add('Пара в строке');
     btnHelpClick(nil);
     Exit;
   end;
@@ -615,6 +622,7 @@ begin
   PairInCol(field, fl);
   if fl then
   begin
+    mmo1.Lines.Add('Пара в столбце');
     btnHelpClick(nil);
     Exit;
   end;
@@ -623,6 +631,7 @@ begin
   SecretPairInBlock(field, fl);
   if fl then
   begin
+    mmo1.Lines.Add('Скрытая пара в блоке');
     btnHelpClick(nil);
     Exit;
   end;
@@ -631,6 +640,7 @@ begin
   SecretPairInRow(field, fl);
   if fl then
   begin
+    mmo1.Lines.Add('Скрытая пара в строке');
     btnHelpClick(nil);
     Exit;
   end;
@@ -639,6 +649,7 @@ begin
   SecretPairInCol(field, fl);
   if fl then
   begin
+    mmo1.Lines.Add('Скрытая пара в столбце');
     btnHelpClick(nil);
     Exit;
   end;
@@ -647,6 +658,7 @@ begin
   AllValuesInBlockInOneRowOrCol(field, fl);
   if fl then
   begin
+    mmo1.Lines.Add('Значение будет в конкретном столбце / строке');
     btnHelpClick(nil);
     Exit;
   end;
